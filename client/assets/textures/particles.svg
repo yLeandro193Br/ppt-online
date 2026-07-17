@@ -1,0 +1,36 @@
+<svg width="800" height="800" xmlns="http://www.w3.org/2000/svg">
+
+
+<defs>
+
+<filter id="glow">
+
+<feGaussianBlur stdDeviation="5"></feGaussianBlur>
+
+</filter>
+
+</defs>
+
+
+<g fill="#00e5ff" filter="url(#glow)">
+
+
+<circle cx="80" cy="100" r="5"></circle>
+
+<circle cx="250" cy="200" r="4"></circle>
+
+<circle cx="500" cy="120" r="6"></circle>
+
+<circle cx="650" cy="350" r="5"></circle>
+
+<circle cx="400" cy="500" r="4"></circle>
+
+<circle cx="700" cy="700" r="6"></circle>
+
+<circle cx="150" cy="650" r="5"></circle>
+
+
+</g>
+
+
+</svg>

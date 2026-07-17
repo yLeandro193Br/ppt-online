@@ -1,0 +1,31 @@
+<svg width="1920" height="1080" xmlns="http://www.w3.org/2000/svg">
+
+<defs>
+
+<radialGradient id="bg">
+
+<stop offset="0%" stop-color="#263238"></stop>
+
+<stop offset="50%" stop-color="#111827"></stop>
+
+<stop offset="100%" stop-color="#050505"></stop>
+
+</radialGradient>
+
+
+<pattern id="grid" width="80" height="80" patternUnits="userSpaceOnUse">
+
+<path d="M80 0 L0 0 0 80" fill="none" stroke="#2196f3" stroke-opacity=".08" stroke-width="2"></path>
+
+</pattern>
+
+</defs>
+
+
+<rect width="1920" height="1080" fill="url(#bg)"></rect>
+
+
+<rect width="1920" height="1080" fill="url(#grid)"></rect>
+
+
+</svg>

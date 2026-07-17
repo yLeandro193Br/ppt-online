@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Pedra Papel Tesoura Online</title>
+
+<link rel="stylesheet" href="style.css">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+
+</head>
+
+<body>
+
+<audio id="bgMusic" loop preload="auto">
+
+    <source 
+    src="assets/music/musica.mp3" 
+    type="audio/mpeg">
+
+</audio>
+
+<div id="particles"></div>
+
+<header>
+
+<h1>🪨 Pedra Papel Tesoura Online ✂️</h1>
+
+</header>
+
+<!-- ========================= -->
+<!-- MENU PRINCIPAL -->
+<!-- ========================= -->
+
+<section id="menu">
+
+<input
+id="playerName"
+type="text"
+placeholder="Digite seu nome">
+
+<div class="buttons">
+
+<button id="createRoom">
+Criar Sala
+</button>
+
+</div>
+
+<div class="join">
+
+<input
+id="roomCode"
+placeholder="Código da Sala">
+
+<button id="joinRoom">
+Entrar
+</button>
+
+</div>
+
+</section>
+
+<!-- ========================= -->
+<!-- ESPERA -->
+<!-- ========================= -->
+
+<section id="waiting" class="hidden">
+
+<h2>Esperando outro jogador...</h2>
+
+<h1 id="roomID">
+XXXXXX
+</h1>
+
+<p>
+Compartilhe este código com seu amigo.
+</p>
+
+<div class="loader"></div>
+
+</section>
+
+<!-- ========================= -->
+<!-- JOGO -->
+<!-- ========================= -->
+
+<section id="game" class="hidden">
+
+<div class="top">
+
+<div class="player">
+
+<h2 id="player1">
+Você
+</h2>
+
+<div id="score1">
+0
+</div>
+
+</div>
+
+<div class="versus">
+VS
+</div>
+
+<div class="player">
+
+<h2 id="player2">
+Adversário
+</h2>
+
+<div id="score2">
+0
+</div>
+
+</div>
+
+</div>
+
+<hr>
+
+<h2>
+
+Escolha sua jogada
+
+</h2>
+
+<div class="choices">
+
+<button class="choice" data-choice="rock">
+
+<img src="assets/images/rock.svg">
+
+<p>Pedra</p>
+
+</button>
+
+<button class="choice" data-choice="paper">
+
+<img src="assets/images/paper.svg">
+
+<p>Papel</p>
+
+</button>
+
+<button class="choice" data-choice="scissors">
+
+<img src="assets/images/scissors.svg">
+
+<p>Tesoura</p>
+
+</button>
+
+</div>
+
+<div id="status">
+
+Escolha sua jogada.
+
+</div>
+
+<div id="battle">
+
+<div id="myChoice">
+❔
+</div>
+
+<div class="versus2">
+
+VS
+
+</div>
+
+<div id="enemyChoice">
+❔
+</div>
+
+</div>
+
+<h1 id="result">
+
+</h1>
+
+<button id="playAgain">
+
+Jogar Novamente
+
+</button>
+
+</section>
+
+<!-- ========================= -->
+<!-- CONTROLES -->
+<!-- ========================= -->
+
+<footer>
+
+<button id="musicButton">
+
+🔊 Música
+
+</button>
+
+</footer>
+
+<script src="/socket.io/socket.io.js"></script>
+
+<script src="script.js"></script>
+
+<script>
+
+const music =
+document.getElementById("bgMusic");
+
+
+const btn =
+document.getElementById("musicButton");
+
+
+let playing = false;
+
+
+
+btn.onclick = ()=>{
+
+
+    if(!playing){
+
+
+        music.volume = 0.35;
+
+
+        music.play();
+
+
+        btn.innerHTML =
+        "🔇 Mutar";
+
+
+        playing = true;
+
+
+    }
+
+
+    else{
+
+
+        music.pause();
+
+
+        btn.innerHTML =
+        "🔊 Música";
+
+
+        playing = false;
+
+
+    }
+
+
+};
+
+</script>
+
+</body>
+</html>
