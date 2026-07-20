@@ -1,273 +1,325 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
 
-<title>Pedra Papel Tesoura Online</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link rel="stylesheet" href="style.css">
+    <title>Pedra Papel Tesoura Online</title>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 
 </head>
 
 <body>
 
-<audio id="bgMusic" loop preload="auto">
+<div id="background"></div>
 
-    <source 
-    src="assets/music/musica.mp3" 
-    type="audio/mpeg">
-
-</audio>
-
-<div id="particles"></div>
-
-<header>
-
-<h1>🪨 Pedra Papel Tesoura Online ✂️</h1>
-
-</header>
-
-<!-- ========================= -->
+<!-- ========================================= -->
 <!-- MENU PRINCIPAL -->
-<!-- ========================= -->
+<!-- ========================================= -->
 
 <section id="menu">
 
-<input
-id="playerName"
-type="text"
-placeholder="Digite seu nome">
+    <div class="logo">
 
-<div class="buttons">
+        <h1>PEDRA PAPEL TESOURA</h1>
 
-<button id="createRoom">
-Criar Sala
-</button>
+        <span>ONLINE</span>
 
-</div>
+    </div>
 
-<div class="join">
+    <div class="menu-container">
 
-<input
-id="roomCode"
-placeholder="Código da Sala">
+        <!-- ========================================= -->
+        <!-- ENTRAR -->
+        <!-- ========================================= -->
 
-<button id="joinRoom">
-Entrar
-</button>
+        <div class="panel">
 
-</div>
+            <h2>Entrar em uma Sala</h2>
+
+            <p>
+                Entre utilizando o código recebido do anfitrião.
+            </p>
+
+            <input
+                id="joinPlayerName"
+                type="text"
+                maxlength="20"
+                placeholder="Seu nome">
+
+            <input
+                id="roomCode"
+                type="text"
+                maxlength="6"
+                placeholder="Código da sala">
+
+            <button id="joinRoom">
+
+                ENTRAR
+
+            </button>
+
+        </div>
+
+        <!-- ========================================= -->
+        <!-- CRIAR -->
+        <!-- ========================================= -->
+
+        <div class="panel">
+
+            <h2>Criar uma Sala</h2>
+
+            <p>
+                Crie uma nova sala e convide um amigo.
+            </p>
+
+            <input
+                id="createPlayerName"
+                type="text"
+                maxlength="20"
+                placeholder="Seu nome">
+
+            <button id="createRoom">
+
+                CRIAR SALA
+
+            </button>
+
+        </div>
+
+    </div>
 
 </section>
 
-<!-- ========================= -->
-<!-- ESPERA -->
-<!-- ========================= -->
+<!-- ========================================= -->
+<!-- AGUARDANDO ADVERSÁRIO -->
+<!-- ========================================= -->
 
 <section id="waiting" class="hidden">
 
-<h2>Esperando outro jogador...</h2>
+    <div class="waiting-card">
 
-<h1 id="roomID">
-XXXXXX
-</h1>
+        <h2>Sala Criada</h2>
 
-<p>
-Compartilhe este código com seu amigo.
-</p>
+        <p>
 
-<div class="loader"></div>
+            Compartilhe este código:
+
+        </p>
+
+        <div id="roomID">
+
+            ------
+
+        </div>
+
+        <small>
+
+            Aguardando outro jogador...
+
+        </small>
+
+    </div>
 
 </section>
 
-<!-- ========================= -->
-<!-- JOGO -->
-<!-- ========================= -->
+<!-- ========================================= -->
+<!-- TELA DO JOGO -->
+<!-- ========================================= -->
 
 <section id="game" class="hidden">
 
-<div class="top">
+<header>
 
-<div class="player">
+    <div>
 
-<h2 id="player1">
-Você
-</h2>
+        Sala:
 
-<div id="score1">
-0
-</div>
+        <span id="roomCodeGame">
 
-</div>
+            ------
 
-<div class="versus">
-VS
-</div>
+        </span>
 
-<div class="player">
+    </div>
 
-<h2 id="player2">
-Adversário
-</h2>
+    <div class="title">
 
-<div id="score2">
-0
-</div>
+        PEDRA • PAPEL • TESOURA
 
-</div>
+    </div>
 
-</div>
+    <button id="musicButton">
 
-<hr>
+        🔊 Música
 
-<h2>
+    </button>
 
-Escolha sua jogada
+</header>
 
-</h2>
+<main>
 
-<div class="choices">
+    <!-- JOGADOR 1 -->
 
-<button class="choice" data-choice="rock">
+    <aside class="player-side">
 
-<img src="assets/images/rock.svg">
+        <div class="avatar">
 
-<p>Pedra</p>
+            👤
 
-</button>
+        </div>
 
-<button class="choice" data-choice="paper">
+        <h2 id="player1">
 
-<img src="assets/images/paper.svg">
+            Jogador 1
 
-<p>Papel</p>
+        </h2>
 
-</button>
+        <div class="choice-view">
 
-<button class="choice" data-choice="scissors">
+            <span id="myChoice">
 
-<img src="assets/images/scissors.svg">
+                ❔
 
-<p>Tesoura</p>
+            </span>
 
-</button>
+        </div>
 
-</div>
+        <div class="score">
 
-<div id="status">
+            Pontos
 
-Escolha sua jogada.
+            <strong id="score1">
 
-</div>
+                0
 
-<div id="battle">
+            </strong>
 
-<div id="myChoice">
-❔
-</div>
+        </div>
 
-<div class="versus2">
+    </aside>
 
-VS
+    <!-- CENTRO -->
 
-</div>
+    <section class="center">
 
-<div id="enemyChoice">
-❔
-</div>
+        <h2 id="status">
 
-</div>
+            Escolha sua jogada
 
-<h1 id="result">
+        </h2>
 
-</h1>
+        <h1 id="result"></h1>
 
-<button id="playAgain">
+        <div class="choices">
 
-Jogar Novamente
+            <button
+                class="choice"
+                data-choice="rock">
 
-</button>
+                <img src="assets/images/rock.svg">
+
+                <span>Pedra</span>
+
+            </button>
+
+            <button
+                class="choice"
+                data-choice="paper">
+
+                <img src="assets/images/paper.svg">
+
+                <span>Papel</span>
+
+            </button>
+
+            <button
+                class="choice"
+                data-choice="scissors">
+
+                <img src="assets/images/scissors.svg">
+
+                <span>Tesoura</span>
+
+            </button>
+
+        </div>
+
+        <button id="playAgain">
+
+            Jogar Novamente
+
+        </button>
+
+    </section>
+
+    <!-- JOGADOR 2 -->
+
+    <aside class="player-side">
+
+        <div class="avatar">
+
+            👤
+
+        </div>
+
+        <h2 id="player2">
+
+            Jogador 2
+
+        </h2>
+
+        <div class="choice-view">
+
+            <span id="enemyChoice">
+
+                ❔
+
+            </span>
+
+        </div>
+
+        <div class="score">
+
+            Pontos
+
+            <strong id="score2">
+
+                0
+
+            </strong>
+
+        </div>
+
+    </aside>
+
+</main>
 
 </section>
 
-<!-- ========================= -->
-<!-- CONTROLES -->
-<!-- ========================= -->
+<!-- ========================================= -->
+<!-- MÚSICA -->
+<!-- ========================================= -->
 
-<footer>
+<audio
+    id="bgMusic"
+    preload="auto"
+    loop>
 
-<button id="musicButton">
+    <source
+        src="assets/music/musica.mp3"
+        type="audio/mpeg">
 
-🔊 Música
-
-</button>
-
-</footer>
+</audio>
 
 <script src="/socket.io/socket.io.js"></script>
 
 <script src="script.js"></script>
 
-<script>
-
-const music =
-document.getElementById("bgMusic");
-
-
-const btn =
-document.getElementById("musicButton");
-
-
-let playing = false;
-
-
-
-btn.onclick = ()=>{
-
-
-    if(!playing){
-
-
-        music.volume = 0.35;
-
-
-        music.play();
-
-
-        btn.innerHTML =
-        "🔇 Mutar";
-
-
-        playing = true;
-
-
-    }
-
-
-    else{
-
-
-        music.pause();
-
-
-        btn.innerHTML =
-        "🔊 Música";
-
-
-        playing = false;
-
-
-    }
-
-
-};
-
-</script>
-
 </body>
+
 </html>

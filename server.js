@@ -1,520 +1,323 @@
-// ==========================================
-// IMPORTAÇÕES
-// ==========================================
-
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
-
-
-// ==========================================
-// CONFIGURAÇÃO DO SERVIDOR
-// ==========================================
+const path = require("path");
 
 const app = express();
-
 const server = http.createServer(app);
 
 const io = new Server(server);
 
+const PORT = process.env.PORT || 3000;
 
-// Servir arquivos do jogo
-app.use(express.static("client"));
+// ================================
+// SERVIR O CLIENT
+// ================================
 
+app.use(express.static(path.join(__dirname, "client")));
 
-// ==========================================
-// MEMÓRIA DAS SALAS
-// ==========================================
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "client", "index.html"));
+});
+
+// ================================
+// SALAS
+// ================================
 
 const rooms = {};
 
-
-// ==========================================
-// GERAR CÓDIGO DA SALA
-// ==========================================
+// ================================
+// GERAR CÓDIGO
+// ================================
 
 function generateRoomCode() {
 
-    return Math.random()
-        .toString(36)
-        .substring(2, 8)
-        .toUpperCase();
+    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
-}
+    let code = "";
 
+    for (let i = 0; i < 6; i++) {
 
-
-// ==========================================
-// CALCULAR VENCEDOR
-// ==========================================
-
-function calculateWinner(player1, player2) {
-
-
-    if(player1 === player2){
-
-        return 0; // empate
+        code += chars.charAt(
+            Math.floor(Math.random() * chars.length)
+        );
 
     }
 
-
-    if(
-
-        (player1 === "rock" &&
-         player2 === "scissors")
-
-        ||
-
-        (player1 === "paper" &&
-         player2 === "rock")
-
-        ||
-
-        (player1 === "scissors" &&
-         player2 === "paper")
-
-    ){
-
-        return 1; // jogador 1 venceu
-
+    if (rooms[code]) {
+        return generateRoomCode();
     }
 
-
-    return 2; // jogador 2 venceu
+    return code;
 
 }
 
+// ================================
+// VERIFICAR VENCEDOR
+// ================================
 
+function winner(p1, p2) {
 
-// ==========================================
-// CONEXÃO DOS JOGADORES
-// ==========================================
+    if (p1 === p2)
+        return 0;
+
+    if (
+        (p1 === "rock" && p2 === "scissors") ||
+        (p1 === "paper" && p2 === "rock") ||
+        (p1 === "scissors" && p2 === "paper")
+    ) {
+
+        return 1;
+
+    }
+
+    return 2;
+
+}
+
+// ================================
+// SOCKET
+// ================================
 
 io.on("connection", socket => {
 
+    console.log("Conectado:", socket.id);
 
-    console.log(
-        "Novo jogador:",
-        socket.id
-    );
-
-
-
-    // ======================================
+    // ============================
     // CRIAR SALA
-    // ======================================
+    // ============================
 
+    socket.on("createRoom", name => {
 
-    socket.on(
-        "createRoom",
-        playerName => {
+        const room = generateRoomCode();
 
+        rooms[room] = {
 
-            let roomCode;
+            players: [
 
-
-            do {
-
-                roomCode =
-                generateRoomCode();
-
-
-            } while(rooms[roomCode]);
-
-
-
-            rooms[roomCode] = {
-
-
-                players:[
-
-                    {
-
-                        id:socket.id,
-
-                        name:
-                        playerName || "Jogador",
-
-                        move:null,
-
-                        score:0
-
-                    }
-
-                ]
-
-            };
-
-
-
-            socket.join(roomCode);
-
-
-            socket.room = roomCode;
-
-
-
-            socket.emit(
-                "roomCreated",
-                roomCode
-            );
-
-
-            console.log(
-                "Sala criada:",
-                roomCode
-            );
-
-
-        }
-    );
-
-
-
-
-
-    // ======================================
-    // ENTRAR NA SALA
-    // ======================================
-
-
-    socket.on(
-        "joinRoom",
-        data => {
-
-
-            const room =
-            rooms[data.room];
-
-
-
-            if(!room){
-
-
-                socket.emit(
-                    "errorRoom",
-                    "Sala não encontrada."
-                );
-
-
-                return;
-
-
-            }
-
-
-
-            if(room.players.length >= 2){
-
-
-                socket.emit(
-                    "errorRoom",
-                    "Sala cheia."
-                );
-
-
-                return;
-
-
-            }
-
-
-
-            room.players.push({
-
-                id:socket.id,
-
-                name:
-                data.name || "Jogador",
-
-                move:null,
-
-                score:0
-
-            });
-
-
-
-            socket.join(
-                data.room
-            );
-
-
-            socket.room =
-            data.room;
-
-
-
-            io.to(data.room)
-            .emit(
-                "gameStart",
                 {
 
-                    room:data.room,
-
-                    players:
-                    room.players
+                    id: socket.id,
+                    name
 
                 }
+
+            ],
+
+            score1: 0,
+            score2: 0,
+
+            move1: null,
+            move2: null
+
+        };
+
+        socket.join(room);
+
+        socket.emit(
+            "roomCreated",
+            room
+        );
+
+    });
+
+    // ============================
+    // ENTRAR NA SALA
+    // ============================
+
+    socket.on("joinRoom", data => {
+
+        const room = data.room;
+
+        if (!rooms[room]) {
+
+            socket.emit(
+                "errorRoom",
+                "Sala não encontrada."
             );
 
-
-            console.log(
-                "Jogador entrou:",
-                data.room
-            );
-
+            return;
 
         }
-    );
 
+        if (rooms[room].players.length >= 2) {
 
+            socket.emit(
+                "errorRoom",
+                "Sala cheia."
+            );
 
+            return;
 
+        }
 
-    // ======================================
+        rooms[room].players.push({
+
+            id: socket.id,
+
+            name: data.name
+
+        });
+
+        socket.join(room);
+
+        io.to(room).emit(
+
+            "gameStart",
+
+            {
+
+                room,
+
+                players: rooms[room].players
+
+            }
+
+        );
+
+    });
+
+    // ============================
     // JOGADA
-    // ======================================
+    // ============================
 
+    socket.on("playerMove", data => {
 
-    socket.on(
-        "playerMove",
-        data => {
+        const room = rooms[data.room];
 
+        if (!room)
+            return;
 
-            const room =
-            rooms[data.room];
-
-
-
-            if(!room)
-                return;
-
-
-
-            const player =
-            room.players.find(
-                p =>
-                p.id === socket.id
+        const player =
+            room.players.findIndex(
+                p => p.id === socket.id
             );
 
+        if (player === 0) {
 
+            room.move1 = data.move;
 
-            if(!player)
-                return;
+        }
 
+        else {
 
+            room.move2 = data.move;
 
-            player.move =
-            data.move;
+        }
 
+        if (!room.move1 || !room.move2)
+            return;
 
+        const result = winner(
 
-            // Espera os dois jogadores
+            room.move1,
 
-            if(
-                room.players.length === 2
-                &&
-                room.players.every(
-                    p=>p.move
-                )
-            ){
+            room.move2
 
+        );
 
-                const p1 =
-                room.players[0];
+        if (result === 1)
+            room.score1++;
 
+        if (result === 2)
+            room.score2++;
 
-                const p2 =
-                room.players[1];
+        io.to(data.room).emit(
 
+            "roundResult",
 
+            {
 
-                const result =
-                calculateWinner(
-                    p1.move,
-                    p2.move
-                );
+                p1Move: room.move1,
 
+                p2Move: room.move2,
 
+                score1: room.score1,
 
-                if(result === 1){
+                score2: room.score2,
 
-                    p1.score++;
-
-                }
-
-
-                if(result === 2){
-
-                    p2.score++;
-
-                }
-
-
-
-                io.to(data.room)
-                .emit(
-                    "roundResult",
-                    {
-
-
-                        result,
-
-
-                        p1Move:
-                        p1.move,
-
-
-                        p2Move:
-                        p2.move,
-
-
-                        score1:
-                        p1.score,
-
-
-                        score2:
-                        p2.score,
-
-
-                        players:
-                        room.players
-
-
-                    }
-                );
-
-
-
-                // limpa escolhas
-
-                p1.move=null;
-
-                p2.move=null;
-
+                result
 
             }
 
+        );
 
-        }
-    );
+    });
 
-
-
-
-
-    // ======================================
+    // ============================
     // NOVA RODADA
-    // ======================================
+    // ============================
 
+    socket.on("playAgain", roomCode => {
 
-    socket.on(
-        "playAgain",
-        roomCode => {
+        const room = rooms[roomCode];
 
+        if (!room)
+            return;
 
-            const room =
-            rooms[roomCode];
+        room.move1 = null;
 
+        room.move2 = null;
 
-            if(!room)
-                return;
+        io.to(roomCode).emit(
+            "newRound"
+        );
 
+    });
 
+    // ============================
+    // DESCONECTOU
+    // ============================
 
-            io.to(roomCode)
-            .emit(
-                "newRound"
-            );
+    socket.on("disconnect", () => {
 
+        for (const room in rooms) {
 
-        }
-    );
+            const index =
+                rooms[room]
+                    .players
+                    .findIndex(
 
+                        p => p.id === socket.id
 
+                    );
 
+            if (index !== -1) {
 
+                io.to(room).emit(
+                    "opponentLeft"
+                );
 
-    // ======================================
-    // DESCONEXÃO
-    // ======================================
+                delete rooms[room];
 
-
-    socket.on(
-        "disconnect",
-        ()=>{
-
-
-            console.log(
-                "Saiu:",
-                socket.id
-            );
-
-
-
-            const roomCode =
-            socket.room;
-
-
-
-            if(!roomCode)
-                return;
-
-
-
-            const room =
-            rooms[roomCode];
-
-
-
-            if(!room)
-                return;
-
-
-
-            room.players =
-            room.players.filter(
-                p =>
-                p.id !== socket.id
-            );
-
-
-
-            io.to(roomCode)
-            .emit(
-                "opponentLeft"
-            );
-
-
-
-            if(
-                room.players.length === 0
-            ){
-
-                delete rooms[roomCode];
+                break;
 
             }
 
-
         }
-    );
 
-
+    });
 
 });
 
+// ================================
 
+server.listen(PORT, () => {
 
+    console.log("");
 
-// ==========================================
-// INICIAR SERVIDOR
-// ==========================================
+    console.log("===============================");
 
-const PORT =
-process.env.PORT || 3000;
+    console.log(" Pedra Papel Tesoura Online");
 
+    console.log("===============================");
 
-server.listen(PORT, "0.0.0.0", () => {
+    console.log("");
+
     console.log(`Servidor rodando na porta ${PORT}`);
+
+    console.log(`http://localhost:${PORT}`);
+
+    console.log("");
+
 });

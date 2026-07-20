@@ -1,92 +1,88 @@
-// ==========================================
-// CONEXÃO SOCKET.IO
-// ==========================================
+// ======================================================
+// PEDRA PAPEL TESOURA ONLINE
+// SCRIPT.JS - PARTE 1
+// ======================================================
+
+// ==============================
+// SOCKET
+// ==============================
 
 const socket = io();
 
-
-// ==========================================
-// ELEMENTOS HTML
-// ==========================================
+// ==============================
+// ELEMENTOS DA TELA
+// ==============================
 
 const menu = document.getElementById("menu");
 const waiting = document.getElementById("waiting");
 const game = document.getElementById("game");
 
+const createRoomBtn = document.getElementById("createRoom");
+const joinRoomBtn = document.getElementById("joinRoom");
 
-const createRoomBtn =
-document.getElementById("createRoom");
+const createPlayerName =
+document.getElementById("createPlayerName");
 
+const joinPlayerName =
+document.getElementById("joinPlayerName");
 
-const joinRoomBtn =
-document.getElementById("joinRoom");
-
-
-const playerNameInput =
-document.getElementById("playerName");
-
-
-const roomInput =
+const roomCodeInput =
 document.getElementById("roomCode");
 
+const roomCodeGame =
+document.getElementById("roomCodeGame");
 
 const roomID =
 document.getElementById("roomID");
 
-
-const statusText =
-document.getElementById("status");
-
-
-const resultText =
-document.getElementById("result");
-
-
-const player1Name =
+const player1 =
 document.getElementById("player1");
 
-
-const player2Name =
+const player2 =
 document.getElementById("player2");
-
 
 const score1 =
 document.getElementById("score1");
 
-
 const score2 =
 document.getElementById("score2");
-
 
 const myChoice =
 document.getElementById("myChoice");
 
-
 const enemyChoice =
 document.getElementById("enemyChoice");
 
+const status =
+document.getElementById("status");
 
-const playAgainBtn =
+const result =
+document.getElementById("result");
+
+const playAgain =
 document.getElementById("playAgain");
 
+const musicButton =
+document.getElementById("musicButton");
 
-// ==========================================
-// VARIÁVEIS DO JOGADOR
-// ==========================================
+const music =
+document.getElementById("bgMusic");
 
-let currentRoom = null;
+const choiceButtons =
+document.querySelectorAll(".choice");
 
-let myPlayerId = null;
+// ==============================
+// VARIÁVEIS
+// ==============================
 
-let myPlayerNumber = null;
+let room = "";
+let playerNumber = 0;
+let played = false;
+let musicStarted = false;
 
-let alreadyPlayed = false;
-
-
-
-// ==========================================
-// ÍCONES DAS JOGADAS
-// ==========================================
+// ==============================
+// ÍCONES
+// ==============================
 
 const icons = {
 
@@ -98,493 +94,483 @@ const icons = {
 
 };
 
+// ==============================
+// MÚSICA
+// ==============================
 
+function startMusic(){
 
-// ==========================================
+    if(musicStarted)
+        return;
+
+    musicStarted = true;
+
+    music.volume = .35;
+
+    music.play().catch(()=>{});
+
+}
+
+musicButton.onclick = ()=>{
+
+    if(music.paused){
+
+        music.play();
+
+        musicButton.innerHTML="🔊 Música";
+
+    }
+
+    else{
+
+        music.pause();
+
+        musicButton.innerHTML="🔈 Música";
+
+    }
+
+};
+
+// ==============================
 // CRIAR SALA
-// ==========================================
-
+// ==============================
 
 createRoomBtn.onclick = ()=>{
 
-
     startMusic();
 
-
     let name =
-    playerNameInput.value.trim();
+    createPlayerName.value.trim();
 
-
-
-    if(!name){
-
+    if(name==="")
         name="Jogador";
 
-    }
-
-
-
     socket.emit(
-        "createRoom",
-        name
-    );
 
+        "createRoom",
+
+        name
+
+    );
 
 };
 
-
-
-
-// ==========================================
-// SALA CRIADA
-// ==========================================
-
-
-socket.on(
-"roomCreated",
-code=>{
-
-
-    currentRoom = code;
-
-
-    myPlayerId =
-    socket.id;
-
-
-
-    myPlayerNumber = 1;
-
-
-
-    roomID.innerHTML =
-    code;
-
-
-
-    menu.classList.add(
-        "hidden"
-    );
-
-
-    waiting.classList.remove(
-        "hidden"
-    );
-
-
-});
-
-
-
-
-// ==========================================
+// ==============================
 // ENTRAR NA SALA
-// ==========================================
-
+// ==============================
 
 joinRoomBtn.onclick = ()=>{
 
-
     startMusic();
 
-
-
     let name =
-    playerNameInput.value.trim();
+    joinPlayerName.value.trim();
 
-
-
-    if(!name){
-
+    if(name==="")
         name="Jogador";
+
+    room =
+    roomCodeInput.value
+    .trim()
+    .toUpperCase();
+
+    if(room===""){
+
+        alert("Informe o código da sala.");
+
+        return;
 
     }
 
-
-
-    currentRoom =
-    roomInput.value
-    .toUpperCase();
-
-
-
     socket.emit(
+
         "joinRoom",
+
         {
 
-            room:
-            currentRoom,
+            room,
 
-            name:name
+            name
 
         }
-    );
 
+    );
 
 };
 
+// ==============================
+// SALA CRIADA
+// ==============================
 
+socket.on(
 
-// ==========================================
+    "roomCreated",
+
+    code=>{
+
+        room = code;
+
+        roomID.innerHTML = code;
+
+        roomCodeGame.innerHTML = code;
+
+        menu.classList.add("hidden");
+
+        waiting.classList.remove("hidden");
+
+    }
+
+);
+
+// ==============================
 // ERRO
-// ==========================================
-
-
-socket.on(
-"errorRoom",
-msg=>{
-
-
-    alert(msg);
-
-
-});
-
-
-
-// ==========================================
-// JOGO COMEÇOU
-// ==========================================
-
+// ==============================
 
 socket.on(
-"gameStart",
-data=>{
 
+    "errorRoom",
 
-    currentRoom =
-    data.room;
+    message=>{
 
+        alert(message);
 
+    }
 
-    menu.classList.add(
-        "hidden"
-    );
+);
 
+// ==============================
+// INÍCIO DO JOGO
+// ==============================
 
-    waiting.classList.add(
-        "hidden"
-    );
+socket.on(
 
+    "gameStart",
 
-    game.classList.remove(
-        "hidden"
-    );
+    data=>{
 
+        room = data.room;
 
+        roomCodeGame.innerHTML = room;
 
-    const players =
-    data.players;
+        menu.classList.add("hidden");
 
+        waiting.classList.add("hidden");
 
+        game.classList.remove("hidden");
 
-    player1Name.innerHTML =
-    players[0].name;
+        const players =
+        data.players;
 
+        player1.innerHTML =
+        players[0].name;
 
-    player2Name.innerHTML =
-    players[1].name;
+        player2.innerHTML =
+        players[1].name;
 
+        playerNumber =
+        players.findIndex(
 
+            p=>p.id===socket.id
 
-    const index =
-    players.findIndex(
-        p =>
-        p.id === socket.id
-    );
+        ) + 1;
 
+        score1.innerHTML="0";
+        score2.innerHTML="0";
 
+        myChoice.innerHTML="❔";
+        enemyChoice.innerHTML="❔";
 
-    myPlayerNumber =
-    index + 1;
+        status.innerHTML=
+        "Escolha sua jogada";
 
+        result.innerHTML="";
 
+        played=false;
 
-    myPlayerId =
-    socket.id;
+    }
 
+);
 
-
-    statusText.innerHTML =
-    "Escolha sua jogada";
-
-
-});
-
-
-
-// ==========================================
+// ==============================
 // ESCOLHER JOGADA
-// ==========================================
+// ==============================
 
-
-const choices =
-document.querySelectorAll(".choice");
-
-
-
-choices.forEach(button=>{
-
+choiceButtons.forEach(button=>{
 
     button.onclick = ()=>{
 
-
-        if(alreadyPlayed)
+        if(played)
             return;
 
+        choiceButtons.forEach(b=>{
 
+            b.classList.remove("selected");
+
+        });
+
+        button.classList.add("selected");
 
         const move =
         button.dataset.choice;
 
+        myChoice.innerHTML =
+        icons[move];
 
+        played = true;
 
-        alreadyPlayed = true;
-
-
-
-        button.classList.add(
-            "selected"
-        );
-
-
+        status.innerHTML =
+        "Esperando o adversário...";
 
         socket.emit(
+
             "playerMove",
+
             {
 
-                room:
-                currentRoom,
+                room,
 
-                move:
                 move
 
             }
+
         );
-
-
-
-        statusText.innerHTML =
-        "Esperando adversário...";
-
 
     };
 
-
 });
+// ======================================================
+// SCRIPT.JS - PARTE 2
+// Continuação da Parte 1
+// ======================================================
 
-
-
-
-// ==========================================
+// ==============================
 // RESULTADO DA RODADA
-// ==========================================
-
+// ==============================
 
 socket.on(
-"roundResult",
-data=>{
 
+    "roundResult",
 
-    myChoice.innerHTML =
-    icons[
-        data[
-            myPlayerNumber === 1
-            ?
-            "p1Move"
-            :
-            "p2Move"
-        ]
-    ];
+    data=>{
 
+        const myMove =
+        playerNumber === 1
+        ? data.p1Move
+        : data.p2Move;
 
+        const enemyMove =
+        playerNumber === 1
+        ? data.p2Move
+        : data.p1Move;
 
-    enemyChoice.innerHTML =
-    icons[
-        data[
-            myPlayerNumber === 1
-            ?
-            "p2Move"
-            :
-            "p1Move"
-        ]
-    ];
+        myChoice.innerHTML =
+        icons[myMove];
 
+        enemyChoice.innerHTML =
+        icons[enemyMove];
 
+        score1.innerHTML =
+        data.score1;
 
-    score1.innerHTML =
-    data.score1;
+        score2.innerHTML =
+        data.score2;
 
+        result.classList.remove(
+            "win",
+            "lose"
+        );
 
-    score2.innerHTML =
-    data.score2;
+        if(data.result===0){
 
+            result.innerHTML =
+            "🤝 EMPATE";
 
+        }
 
-    if(data.result === 0){
+        else if(data.result===playerNumber){
 
+            result.innerHTML =
+            "🏆 VOCÊ VENCEU";
 
-        resultText.innerHTML =
-        "🤝 EMPATE";
+            result.classList.add(
+                "win"
+            );
 
+        }
 
-    }
+        else{
 
+            result.innerHTML =
+            "💀 VOCÊ PERDEU";
 
-    else if(
+            result.classList.add(
+                "lose"
+            );
 
-        data.result === myPlayerNumber
+        }
 
-    ){
+        status.innerHTML =
+        "Rodada finalizada";
 
-
-        resultText.innerHTML =
-        "🏆 VOCÊ VENCEU!";
-
-
-        resultText.className =
-        "win";
-
-
-    }
-
-
-    else{
-
-
-        resultText.innerHTML =
-        "💀 VOCÊ PERDEU";
-
-
-        resultText.className =
-        "lose";
-
+        played=false;
 
     }
 
+);
 
-
-    statusText.innerHTML =
-    "Fim da rodada";
-
-
-
-    alreadyPlayed = false;
-
-
-});
-
-
-
-// ==========================================
+// ==============================
 // NOVA RODADA
-// ==========================================
-
+// ==============================
 
 socket.on(
-"newRound",
-()=>{
 
+    "newRound",
 
-    myChoice.innerHTML =
-    "❔";
+    ()=>{
 
+        myChoice.innerHTML="❔";
 
-    enemyChoice.innerHTML =
-    "❔";
+        enemyChoice.innerHTML="❔";
 
+        result.innerHTML="";
 
-    resultText.innerHTML =
-    "";
+        result.classList.remove(
+            "win",
+            "lose"
+        );
 
+        status.innerHTML=
+        "Escolha sua jogada";
 
-    resultText.className =
-    "";
+        played=false;
 
+        choiceButtons.forEach(button=>{
 
-    statusText.innerHTML =
-    "Escolha sua jogada";
+            button.classList.remove(
+                "selected"
+            );
 
+        });
 
-});
+    }
 
+);
 
-
-
-// ==========================================
+// ==============================
 // BOTÃO JOGAR NOVAMENTE
-// ==========================================
+// ==============================
 
-
-playAgainBtn.onclick = ()=>{
-
+playAgain.onclick = ()=>{
 
     socket.emit(
-        "playAgain",
-        currentRoom
-    );
 
+        "playAgain",
+
+        room
+
+    );
 
 };
 
-
-
-
-// ==========================================
+// ==============================
 // ADVERSÁRIO SAIU
-// ==========================================
-
+// ==============================
 
 socket.on(
-"opponentLeft",
-()=>{
 
+    "opponentLeft",
 
-    alert(
-        "Seu adversário saiu."
-    );
+    ()=>{
 
+        alert(
+            "Seu adversário saiu da sala."
+        );
 
-    game.classList.add(
-        "hidden"
-    );
+        game.classList.add(
+            "hidden"
+        );
 
+        waiting.classList.add(
+            "hidden"
+        );
 
-    menu.classList.remove(
-        "hidden"
-    );
+        menu.classList.remove(
+            "hidden"
+        );
 
+        room="";
 
-});
+        playerNumber=0;
 
+        played=false;
 
+        roomCodeInput.value="";
 
-// ==========================================
-// MÚSICA
-// ==========================================
+        status.innerHTML=
+        "Escolha sua jogada";
 
+        result.innerHTML="";
 
-function startMusic(){
+        score1.innerHTML="0";
 
+        score2.innerHTML="0";
 
-    const music =
-    document.getElementById(
-        "bgMusic"
-    );
+        myChoice.innerHTML="❔";
 
+        enemyChoice.innerHTML="❔";
 
-    if(!music)
-        return;
+        choiceButtons.forEach(button=>{
 
+            button.classList.remove(
+                "selected"
+            );
 
+        });
 
-    music.volume =
-    0.35;
+    }
 
+);
 
+// ==============================
+// DESCONECTOU DO SERVIDOR
+// ==============================
 
-    music.play()
-    .catch(()=>{});
+socket.on(
 
+    "disconnect",
 
-}
+    ()=>{
+
+        alert(
+            "Conexão perdida com o servidor."
+        );
+
+    }
+
+);
+
+// ==============================
+// RECONECTOU
+// ==============================
+
+socket.on(
+
+    "connect",
+
+    ()=>{
+
+        console.log(
+            "Conectado ao servidor."
+        );
+
+    }
+
+);
+
+// ==============================
+// LOG DE CONEXÃO
+// ==============================
+
+console.log(
+    "Pedra Papel Tesoura Online iniciado."
+);

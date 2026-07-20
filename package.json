@@ -1,22 +1,30 @@
 {
-  "name": "pedra-papel-tesoura-online",
-  "version": "1.0.0",
-  "description": "Jogo online de Pedra Papel Tesoura em tempo real",
+  "name": "ppt-online",
+  "version": "2.0.0",
+  "description": "Pedra Papel Tesoura Online Multiplayer",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node --watch server.js"
-  },
-  "dependencies": {
-    "express": "^5.1.0",
-    "socket.io": "^4.8.1"
+    "dev": "nodemon server.js"
   },
   "keywords": [
-    "game",
+    "pedra",
+    "papel",
+    "tesoura",
     "socket.io",
     "multiplayer",
-    "rock-paper-scissors"
+    "game"
   ],
-  "author": "Seu Nome",
-  "license": "MIT"
+  "author": "Leandro",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.21.2",
+    "socket.io": "^4.8.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  },
+  "engines": {
+    "node": ">=18"
+  }
 }
