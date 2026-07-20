@@ -59,9 +59,6 @@ document.getElementById("status");
 const result =
 document.getElementById("result");
 
-const playAgain =
-document.getElementById("playAgain");
-
 const musicButton =
 document.getElementById("musicButton");
 
@@ -459,18 +456,6 @@ socket.on(
 // ==============================
 // BOTÃO JOGAR NOVAMENTE
 // ==============================
-
-playAgain.onclick = ()=>{
-
-    socket.emit(
-
-        "playAgain",
-
-        room
-
-    );
-
-};
 
 // ==============================
 // ADVERSÁRIO SAIU

@@ -225,6 +225,8 @@ io.on("connection", socket => {
         io.to(data.room).emit(
 
             "roundResult",
+            status.innerHTML =
+"Próxima rodada em 3 segundos...",
 
             {
 
@@ -241,6 +243,14 @@ io.on("connection", socket => {
             }
 
         );
+        setTimeout(() => {
+
+    room.move1 = null;
+    room.move2 = null;
+
+    io.to(data.room).emit("newRound");
+
+}, 3000);
 
     });
 
@@ -248,22 +258,33 @@ io.on("connection", socket => {
     // NOVA RODADA
     // ============================
 
-    socket.on("playAgain", roomCode => {
+socket.on("newRound",()=>{
 
-        const room = rooms[roomCode];
+    played = false;
 
-        if (!room)
-            return;
+    status.innerHTML =
+    "Escolha sua jogada";
 
-        room.move1 = null;
+    result.innerHTML = "";
 
-        room.move2 = null;
+    result.classList.remove(
+        "win",
+        "lose"
+    );
 
-        io.to(roomCode).emit(
-            "newRound"
+    myChoice.innerHTML = "❔";
+
+    enemyChoice.innerHTML = "❔";
+
+    choiceButtons.forEach(button=>{
+
+        button.classList.remove(
+            "selected"
         );
 
     });
+
+});
 
     // ============================
     // DESCONECTOU
